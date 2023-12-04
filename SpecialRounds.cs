@@ -27,7 +27,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     public override string ModuleName => "SpecialRounds";
     public override string ModuleAuthor => "DeadSwim";
     public override string ModuleDescription => "Simple Special rounds.";
-    public override string ModuleVersion => "V. 1.0.0";
+    public override string ModuleVersion => "V. 1.0.2";
     private static readonly int?[] IsVIP = new int?[65];
 
 
@@ -75,8 +75,32 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                     $"<font color='gray'>Now playing</font> <font class='fontSize-m' color='green'>[{NameOfRound}]</font>"
                     );
                 }
+                OnTick(client);
             }
         });
+    }
+    public static SpecialRounds It;
+    public SpecialRounds()
+    {
+        It = this;
+    }
+    public static void OnTick(CCSPlayerController controller)
+    {
+        if (!controller.PawnIsAlive)
+            return;
+        var pawn = controller.Pawn.Value;
+        var flags = (PlayerFlags)pawn.Flags;
+        var client = controller.Index;
+        var buttons = controller.Buttons;
+
+
+        if (It.IsRoundNumber != 6)
+            return;
+        if (buttons == PlayerButtons.Attack2)
+            return;
+        if (buttons == PlayerButtons.Zoom)
+            return;
+        
     }
     [GameEventHandler]
     public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
@@ -105,6 +129,10 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             {
                 change_cvar("mp_buytime", "15");
             }
+            if (IsRoundNumber == 6)
+            {
+                change_cvar("mp_buytime", "15");
+            }
             IsRound = false;
             EndRound = false;
             isset = false;
@@ -123,7 +151,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             return HookResult.Continue;
         }
         Random rnd = new Random();
-        int random = rnd.Next(0, 60);
+        int random = rnd.Next(36, 37);
         if (random == 1 || random == 2)
         {
             if (Config.AllowKnifeRound)
@@ -175,6 +203,17 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 IsRound = true;
                 IsRoundNumber = 5;
                 NameOfRound = "Only P90";
+
+                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
+            }
+        }
+        if (random == 36 || random == 37)
+        {
+            if (Config.AllowANORound)
+            {
+                IsRound = true;
+                IsRoundNumber = 6;
+                NameOfRound = "Only AWP + NOSCOPE";
 
                 WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
             }
@@ -290,9 +329,46 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                     }
                 }
             }
+            if (IsRoundNumber == 6)
+            {
+                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
+
+                if (IsRound)
+                {
+                    if (!is_alive(player))
+                        return HookResult.Continue;
+                    foreach (var weapon in player.PlayerPawn.Value.WeaponServices!.MyWeapons)
+                    {
+                        if (weapon is { IsValid: true, Value.IsValid: true })
+                        {
+                            change_cvar("mp_buytime", "0");
+                            weapon.Value.Remove();
+                        }
+                    }
+                    player.GiveNamedItem("weapon_awp");
+                    if (!EndRound)
+                    {
+                        EndRound = true;
+                    }
+                }
+            }
 
         }
         isset = false;
+        return HookResult.Continue;
+    }
+    [GameEventHandler]
+    public HookResult OnWeaponZoom(EventWeaponZoom @event, GameEventInfo info)
+    {
+        if (IsRoundNumber != 6) { return HookResult.Continue; }
+        var player = @event.Userid;
+        var weaponservices = player.PlayerPawn.Value.WeaponServices!;
+        var currentWeapon = weaponservices.ActiveWeapon.Value.DesignerName;
+
+        weaponservices.ActiveWeapon.Value.Remove();
+        player.GiveNamedItem(currentWeapon);
+
+
         return HookResult.Continue;
     }
 }
