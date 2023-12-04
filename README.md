@@ -1,6 +1,14 @@
 
 # If you wanna you can support me on this link - https://www.paypal.com/paypalme/deadswim
 
+
+
+##### Lists of my plugins
+> [VIP](https://github.com/DeadSwimek/cs2-vip), [VIP Premium](https://github.com/DeadSwimek/cs2-vip-premium), [SpecialRounds](https://github.com/DeadSwimek/cs2-specialrounds), [Countdown](https://github.com/DeadSwimek/cs2-countdown)
+
+
+                
+
 This is a very simple vipguns plugin for [CounterStrikeSharp](https://docs.cssharp.dev/).
 Just install [package](https://github.com/connercsbn/SimpleAdmin/releases/) to `game/csgo/addons/counterstrikesharp/plugins/` and you should be good to go. 
 
