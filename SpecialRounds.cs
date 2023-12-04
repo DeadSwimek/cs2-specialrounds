@@ -151,7 +151,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             return HookResult.Continue;
         }
         Random rnd = new Random();
-        int random = rnd.Next(36, 37);
+        int random = rnd.Next(0, 60);
         if (random == 1 || random == 2)
         {
             if (Config.AllowKnifeRound)
