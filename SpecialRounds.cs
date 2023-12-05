@@ -6,8 +6,7 @@ using CounterStrikeSharp.API.Modules.Admin;
 using CounterStrikeSharp.API.Modules.Utils;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Core.Attributes;
-
-
+using CounterStrikeSharp.API.Modules.Timers;
 
 namespace SpecialRounds;
 [MinimumApiVersion(55)]
@@ -27,8 +26,9 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     public override string ModuleName => "SpecialRounds";
     public override string ModuleAuthor => "DeadSwim";
     public override string ModuleDescription => "Simple Special rounds.";
-    public override string ModuleVersion => "V. 1.0.2";
+    public override string ModuleVersion => "V. 1.0.4";
     private static readonly int?[] IsVIP = new int?[65];
+    public CounterStrikeSharp.API.Modules.Timers.Timer? timer_up;
 
 
 
@@ -133,6 +133,10 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             {
                 change_cvar("mp_buytime", "15");
             }
+            if (IsRoundNumber == 7)
+            {
+                timer_up?.Kill();
+            }
             IsRound = false;
             EndRound = false;
             isset = false;
@@ -218,6 +222,17 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                 WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
             }
         }
+        if (random == 42 || random == 43)
+        {
+            if (Config.AllowANORound)
+            {
+                IsRound = true;
+                IsRoundNumber = 7;
+                NameOfRound = "Slaping round";
+
+                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
+            }
+        }
         //Server.PrintToConsole($" Settings : {NameOfRound} / IsRound {IsRound} / IsRoundNumber {IsRoundNumber} / Random number {random}");
 
         return HookResult.Continue;
@@ -225,6 +240,14 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     [GameEventHandler]
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
+        if (GameRules().WarmupPeriod)
+        {
+            IsRound = false;
+            EndRound = false;
+            isset = false;
+            IsRoundNumber = 0;
+            NameOfRound = "";
+        }
         foreach (var l_player in Utilities.GetPlayers())
         {
             CCSPlayerController player = l_player;
@@ -341,15 +364,31 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                     {
                         if (weapon is { IsValid: true, Value.IsValid: true })
                         {
-                            change_cvar("mp_buytime", "0");
+                            if (weapon.Value.DesignerName.Contains("bayonet") || weapon.Value.DesignerName.Contains("knife"))
+                            {
+                                continue;
+                            }
                             weapon.Value.Remove();
                         }
                     }
+                    change_cvar("mp_buytime", "0");
                     player.GiveNamedItem("weapon_awp");
                     if (!EndRound)
                     {
                         EndRound = true;
                     }
+                }
+            }
+            if (IsRoundNumber == 7)
+            {
+                if (IsRound)
+                {
+                    if (!is_alive(player))
+                        return HookResult.Continue;
+                    Random rnd = new Random();
+                    int random = rnd.Next(1, 10);
+                    float random_time = random;
+                    timer_up = AddTimer(random + 0.1f, () => { goup(player); }, TimerFlags.REPEAT);
                 }
             }
 
