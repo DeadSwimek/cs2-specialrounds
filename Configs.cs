@@ -1,4 +1,4 @@
-﻿using CounterStrikeSharp.API;
+using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Utils;
 using System.Text.Json.Serialization;
@@ -14,5 +14,8 @@ public class ConfigSpecials : BasePluginConfig
     [JsonPropertyName("AllowGravityRound")] public bool AllowGravityRound { get; set; } = true;
     [JsonPropertyName("AllowAWPRound")] public bool AllowAWPRound { get; set; } = true;
     [JsonPropertyName("AllowP90Round")] public bool AllowP90Round { get; set; } = true;
+    [JsonPropertyName("AllowANORound")] public bool AllowANORound { get; set; } = true;
+    [JsonPropertyName("AllowSlapRound")] public bool AllowSlapRound { get; set; } = true;
+
 
 }
