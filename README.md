@@ -27,6 +27,9 @@ This plugin randomly generates special rounds for better fun on the game server
 
 `-` Gravity round
 
+`-` Only AWP + NOSCOPE
+
+`-` Slaping round
 
 
 
@@ -39,6 +42,8 @@ This plugin randomly generates special rounds for better fun on the game server
   "AllowGravityRound": true,
   "AllowAWPRound": true,
   "AllowP90Round": true,
+  "AllowANORound": true,
+  "AllowSlapRound": true,
   "ConfigVersion": 1
 }
 ```
