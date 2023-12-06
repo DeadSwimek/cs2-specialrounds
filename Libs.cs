@@ -44,12 +44,18 @@ namespace SpecialRounds
         }
         static public void goup(CCSPlayerController? player)
         {
-            if(!player.IsValid || player != null)
-            { return;  }
+            if(player == null || !player.IsValid)
+            {
+                //WriteColor($"Special Rounds - [*goup*] is not valid or is disconnected.", ConsoleColor.Red);
+                return;
+            }
+            if(!player.PawnIsAlive)
+            {
+                WriteColor($"Special Rounds - [*{player.PlayerName}*] is death.", ConsoleColor.Red);
+                return;  
+            }
             var pawn = player.Pawn.Value;
 
-            if (!is_alive(player))
-                return;
 
             var random = new Random();
             var vel = new Vector(pawn.AbsVelocity.X, pawn.AbsVelocity.Y, pawn.AbsVelocity.Z);
