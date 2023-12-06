@@ -7,6 +7,7 @@ using CounterStrikeSharp.API.Modules.Utils;
 using CounterStrikeSharp.API.Modules.Menu;
 using CounterStrikeSharp.API.Core.Attributes;
 using CounterStrikeSharp.API.Modules.Timers;
+using System.ComponentModel;
 
 namespace SpecialRounds;
 [MinimumApiVersion(55)]
@@ -26,7 +27,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     public override string ModuleName => "SpecialRounds";
     public override string ModuleAuthor => "DeadSwim";
     public override string ModuleDescription => "Simple Special rounds.";
-    public override string ModuleVersion => "V. 1.0.4";
+    public override string ModuleVersion => "V. 1.0.5";
     private static readonly int?[] IsVIP = new int?[65];
     public CounterStrikeSharp.API.Modules.Timers.Timer? timer_up;
 
@@ -100,7 +101,24 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             return;
         if (buttons == PlayerButtons.Zoom)
             return;
-        
+
+    }
+    [ConsoleCommand("css_startround", "Start specific round")]
+    public void startround(CCSPlayerController? player, CommandInfo info)
+    {
+        if(AdminManager.PlayerHasPermissions(player, "@css/root"))
+        {
+
+            int round_id = Convert.ToInt32(info.ArgByIndex(1));
+            if (round_id == null)
+            {
+                return;
+            }
+            EndRound = false;
+            IsRound = true;
+            IsRoundNumber = round_id;
+            player.PrintToChat("YOU START A ROUND!");
+        }
     }
     [GameEventHandler]
     public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
@@ -110,7 +128,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             WriteColor($"SpecialRound - [*SUCCESS*] I turning off the special round.", ConsoleColor.Green);
             if(IsRoundNumber == 1)
             {
-                change_cvar("mp_buytime", "15");
+                change_cvar("mp_buytime", $"{Config.mp_buytime}");
             }
             if (IsRoundNumber == 2)
             {
@@ -123,15 +141,15 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             }
             if (IsRoundNumber == 4)
             {
-                change_cvar("mp_buytime", "15");
+                change_cvar("mp_buytime", $"{Config.mp_buytime}");
             }
             if (IsRoundNumber == 5)
             {
-                change_cvar("mp_buytime", "15");
+                change_cvar("mp_buytime", $"{Config.mp_buytime}");
             }
             if (IsRoundNumber == 6)
             {
-                change_cvar("mp_buytime", "15");
+                change_cvar("mp_buytime", $"{Config.mp_buytime}");
             }
             if (IsRoundNumber == 7)
             {
@@ -155,7 +173,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             return HookResult.Continue;
         }
         Random rnd = new Random();
-        int random = rnd.Next(0, 60);
+        int random = rnd.Next(21, 22);
         if (random == 1 || random == 2)
         {
             if (Config.AllowKnifeRound)
@@ -256,7 +274,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             {
                 WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
 
-                if (IsRound)
+                if (IsRound || Config.AllowKnifeRound)
                 {
                     if (!is_alive(player))
                         return HookResult.Continue;
@@ -283,7 +301,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             {
                 WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
 
-                if (IsRound)
+                if (IsRound || Config.AllowBHOPRound)
                 {
                     change_cvar("sv_autobunnyhopping", "true");
                     change_cvar("sv_enablebunnyhopping", "true");
@@ -293,11 +311,11 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                     }
                 }
             }
-            if (IsRoundNumber == 3)
+            if (IsRoundNumber == 3 )
             {
                 WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
 
-                if (IsRound)
+                if (IsRound || Config.AllowGravityRound)
                 {
                     change_cvar("sv_gravity", "400");
                     if (!EndRound)
@@ -310,7 +328,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             {
                 WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
 
-                if (IsRound)
+                if (IsRound || Config.AllowAWPRound)
                 {
                     if (!is_alive(player))
                         return HookResult.Continue;
@@ -333,7 +351,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             {
                 WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
 
-                if (IsRound)
+                if (IsRound || Config.AllowP90Round)
                 {
                     if (!is_alive(player))
                         return HookResult.Continue;
@@ -356,7 +374,7 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             {
                 WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
 
-                if (IsRound)
+                if (IsRound || Config.AllowANORound)
                 {
                     if (!is_alive(player))
                         return HookResult.Continue;
@@ -381,14 +399,12 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             }
             if (IsRoundNumber == 7)
             {
-                if (IsRound)
+                if (IsRound || Config.AllowSlapRound)
                 {
-                    if (!is_alive(player))
-                        return HookResult.Continue;
-                    Random rnd = new Random();
-                    int random = rnd.Next(1, 10);
-                    float random_time = random;
-                    timer_up = AddTimer(random + 0.1f, () => { goup(player); }, TimerFlags.REPEAT);
+                        Random rnd = new Random();
+                        int random = rnd.Next(3, 10);
+                        float random_time = random;
+                        timer_up = AddTimer(random + 0.1f, () => { goup(player); }, TimerFlags.REPEAT);
                 }
             }
 
