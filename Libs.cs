@@ -42,6 +42,49 @@ namespace SpecialRounds
             }
             return player.PlayerPawn.Value.Health;
         }
+        private bool CheckIsHaveWeapon(string weapon_name, CCSPlayerController? pc)
+        {
+            if (pc == null || !pc.IsValid)
+                return false;
+
+            var pawn = pc.PlayerPawn.Value.WeaponServices!;
+            foreach (var weapon in pawn.MyWeapons)
+            {
+                if (weapon is { IsValid: true, Value.IsValid: true })
+                {
+                    if (weapon.Value.DesignerName.Contains($"{weapon_name}"))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        public void DecoyCheck(CCSPlayerController? player)
+        {
+            if (!player!.PawnIsAlive || !player.IsValid)
+                return;
+            var client = player.Index;
+            var pawn = player.PlayerPawn;
+            if (IsRoundNumber == 8)
+            {
+                if (IsRound == true)
+                {
+                    if (CheckIsHaveWeapon("weapon_decoy", player) == false)
+                    {
+                        player.GiveNamedItem("weapon_decoy");
+                    }
+                }
+                else
+                {
+                    timer_decoy?.Kill();
+                }
+            }
+            else
+            {
+                timer_decoy?.Kill();
+            }
+        }
         static public void goup(CCSPlayerController? player)
         {
             if(player == null || !player.IsValid)
