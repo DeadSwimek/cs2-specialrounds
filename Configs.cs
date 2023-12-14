@@ -17,6 +17,7 @@ public class ConfigSpecials : BasePluginConfig
     [JsonPropertyName("AllowP90Round")] public bool AllowP90Round { get; set; } = true;
     [JsonPropertyName("AllowANORound")] public bool AllowANORound { get; set; } = true;
     [JsonPropertyName("AllowSlapRound")] public bool AllowSlapRound { get; set; } = true;
-
+    [JsonPropertyName("AllowDecoyRound")] public bool AllowDecoyRound { get; set; } = true;
+    [JsonPropertyName("AllowSpeedRound")] public bool AllowSpeedRound { get; set; } = true;
 
 }
