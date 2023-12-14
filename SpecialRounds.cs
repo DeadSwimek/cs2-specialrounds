@@ -10,7 +10,7 @@ using CounterStrikeSharp.API.Modules.Timers;
 using System.ComponentModel;
 
 namespace SpecialRounds;
-[MinimumApiVersion(55)]
+[MinimumApiVersion(120)]
 
 public static class GetUnixTime
 {
@@ -27,9 +27,10 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
     public override string ModuleName => "SpecialRounds";
     public override string ModuleAuthor => "DeadSwim";
     public override string ModuleDescription => "Simple Special rounds.";
-    public override string ModuleVersion => "V. 1.0.5";
+    public override string ModuleVersion => "V. 1.0.6";
     private static readonly int?[] IsVIP = new int?[65];
     public CounterStrikeSharp.API.Modules.Timers.Timer? timer_up;
+    public CounterStrikeSharp.API.Modules.Timers.Timer? timer_decoy;
 
 
 
@@ -155,6 +156,18 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             {
                 timer_up?.Kill();
             }
+            if (IsRoundNumber == 8)
+            {
+                change_cvar("mp_buytime", $"{Config.mp_buytime}");
+                timer_decoy?.Kill();
+            }
+            if (IsRoundNumber == 9)
+            {
+                foreach (var player_l in Utilities.GetPlayers().Where(player => player is { IsValid: true }))
+                {
+                    player_l.PlayerPawn.Value!.VelocityModifier = 0.0f;
+                }
+            }
             IsRound = false;
             EndRound = false;
             isset = false;
@@ -173,16 +186,15 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             return HookResult.Continue;
         }
         Random rnd = new Random();
-        int random = rnd.Next(21, 22);
+        int random = rnd.Next(0, 60);
         if (random == 1 || random == 2)
         {
             if (Config.AllowKnifeRound)
             {
                 IsRound = true;
+                EndRound = true;
                 IsRoundNumber = 1;
                 NameOfRound = "Knife only";
-
-                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
             }
         }
         if (random == 6 || random == 7)
@@ -190,10 +202,9 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             if (Config.AllowBHOPRound)
             {
                 IsRound = true;
+                EndRound = true;
                 IsRoundNumber = 2;
                 NameOfRound = "Auto BHopping";
-
-                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
             }
         }
         if (random == 14 || random == 15)
@@ -201,10 +212,9 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             if (Config.AllowGravityRound)
             {
                 IsRound = true;
+                EndRound = true;
                 IsRoundNumber = 3;
                 NameOfRound = "Gravity round";
-
-                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
             }
         }
         if (random == 21 || random == 22)
@@ -212,10 +222,9 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             if (Config.AllowAWPRound)
             {
                 IsRound = true;
+                EndRound = true;
                 IsRoundNumber = 4;
                 NameOfRound = "Only AWP";
-
-                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
             }
         }
         if (random == 29 || random == 30)
@@ -223,10 +232,9 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             if (Config.AllowP90Round)
             {
                 IsRound = true;
+                EndRound = true;
                 IsRoundNumber = 5;
                 NameOfRound = "Only P90";
-
-                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
             }
         }
         if (random == 36 || random == 37)
@@ -234,10 +242,9 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             if (Config.AllowANORound)
             {
                 IsRound = true;
+                EndRound = true;
                 IsRoundNumber = 6;
                 NameOfRound = "Only AWP + NOSCOPE";
-
-                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
             }
         }
         if (random == 42 || random == 43)
@@ -245,11 +252,34 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
             if (Config.AllowANORound)
             {
                 IsRound = true;
+                EndRound = true;
                 IsRoundNumber = 7;
                 NameOfRound = "Slaping round";
-
-                WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound}.", ConsoleColor.Green);
             }
+        }
+        if (random == 49 || random == 50)
+        {
+            if (Config.AllowDecoyRound)
+            {
+                IsRound = true;
+                EndRound = true;
+                IsRoundNumber = 8;
+                NameOfRound = "Decoy round";
+            }
+        }
+        if (random == 58 || random == 59)
+        {
+            if (Config.AllowSpeedRound)
+            {
+                IsRound = true;
+                EndRound = true;
+                IsRoundNumber = 9;
+                NameOfRound = "Speed round";
+            }
+        }
+        if (IsRound == true)
+        {
+            WriteColor($"SpecialRound - [*ROUND START*] Starting special round {NameOfRound} Number is:{random}.", ConsoleColor.Green);
         }
         //Server.PrintToConsole($" Settings : {NameOfRound} / IsRound {IsRound} / IsRoundNumber {IsRoundNumber} / Random number {random}");
 
@@ -407,11 +437,64 @@ public partial class SpecialRounds : BasePlugin, IPluginConfig<ConfigSpecials>
                         timer_up = AddTimer(random + 0.1f, () => { goup(player); }, TimerFlags.REPEAT);
                 }
             }
+            if (IsRoundNumber == 8)
+            {
+                if (IsRound || Config.AllowDecoyRound)
+                {
+                    foreach (var weapon in player.PlayerPawn.Value!.WeaponServices!.MyWeapons)
+                    {
+                        if (weapon is { IsValid: true, Value.IsValid: true })
+                        {
+                            if (weapon.Value.DesignerName.Contains("bayonet") || weapon.Value.DesignerName.Contains("knife"))
+                            { continue; }
+                            weapon.Value.Remove();
+                        }
+                    }
+                    player.PlayerPawn.Value!.Health = 1;
+                    player.GiveNamedItem("weapon_decoy");
+                    Server.ExecuteCommand("mp_buytime 0");
+                    timer_decoy = AddTimer(2.0f, () => { DecoyCheck(player); }, TimerFlags.REPEAT);
+                    Server.PrintToConsole($"{player.PlayerName}");
+                }
+            }
+            if (IsRoundNumber == 9)
+            {
+                if (IsRound || Config.AllowSpeedRound)
+                {
+                    CCSPlayerPawn? pawn = player.PlayerPawn.Value;
+                    Server.PrintToConsole($"{player.PlayerPawn.Value!.Speed}");
+                    pawn.VelocityModifier = 2.0f;
+                    player.PlayerPawn.Value!.Health = 200;
+                }
+            }
 
         }
         isset = false;
         return HookResult.Continue;
     }
+    [GameEventHandler(HookMode.Post)]
+
+    public HookResult OnPlayerHurt(EventPlayerHurt @event, GameEventInfo info)
+    {
+        CCSPlayerController player = @event.Userid;
+        CCSPlayerController attacker = @event.Attacker;
+
+
+
+        if (player.Connected != PlayerConnectedState.PlayerConnected || !player.PlayerPawn.IsValid || !@event.Userid.IsValid)
+            return HookResult.Continue;
+        if (IsRoundNumber == 8)
+        {
+            if (@event.Weapon != "decoy")
+            {
+                player.PlayerPawn.Value!.Health = 1;
+                player.PrintToChat($" {Config.Prefix} You canno't hit player with other GUN!");
+            }
+        }
+        @event.Userid.PlayerPawn.Value!.VelocityModifier = 1;
+        return HookResult.Continue;
+    }
+
     [GameEventHandler]
     public HookResult OnWeaponZoom(EventWeaponZoom @event, GameEventInfo info)
     {
