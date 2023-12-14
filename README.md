@@ -31,6 +31,10 @@ This plugin randomly generates special rounds for better fun on the game server
 
 `-` Slaping round
 
+`-` Decoy Round
+
+`-` Speed round
+
 
 
 
@@ -44,6 +48,8 @@ This plugin randomly generates special rounds for better fun on the game server
   "AllowP90Round": true,
   "AllowANORound": true,
   "AllowSlapRound": true,
+  "AllowDecoyRound": true,
+  "AllowSpeedRound": true,
   "ConfigVersion": 1
 }
 ```
