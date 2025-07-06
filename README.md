@@ -1,3 +1,5 @@
+# https://discord.com/invite/WNK777rhwg CONNECT FOR LIST ALL MY PLUGINS!!!
+
 
 # If you wanna you can support me on this link - https://www.paypal.com/paypalme/deadswim
 
